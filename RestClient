@@ -1,42 +1,40 @@
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
 
 public class RestClient {
     private int connectTimeout;
     private int readTimeout;
     private HttpClient httpClient;
 
-    public RestClient(int connectTimeout, int readTimeout) {
+    private RestClient(int connectTimeout, int readTimeout, HttpClient httpClient) {
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
-        this.httpClient = HttpClients.createDefault();
+        this.httpClient = httpClient;
     }
 
-    public String get(String url) {
-        try {
-            HttpGet request = new HttpGet(url);
-            request.setConfig(RequestConfig.custom()
-                    .setConnectTimeout(connectTimeout)
-                    .setSocketTimeout(readTimeout)
-                    .build());
+    public static class Builder {
+        private int connectTimeout;
+        private int readTimeout;
+        private HttpClient httpClient;
 
-            HttpResponse response = httpClient.execute(request);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                return EntityUtils.toString(entity);
-            } else {
-                System.out.println("Falha na requisição. Resposta vazia.");
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao realizar a requisição: " + e.getMessage());
+        public Builder connectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
         }
 
-        return null;
+        public Builder readTimeout(int readTimeout) {
+            this.readTimeout = readTimeout;
+            return this;
+        }
+
+        public Builder httpClient(HttpClient httpClient) {
+            this.httpClient = httpClient;
+            return this;
+        }
+
+        public RestClient build() {
+            return new RestClient(connectTimeout, readTimeout, httpClient);
+        }
     }
+
+    // Restante do código da classe RestClient
 }

@@ -1,0 +1,42 @@
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+
+import java.io.IOException;
+
+public class RestClient {
+    private int connectTimeout;
+    private int readTimeout;
+    private HttpClient httpClient;
+
+    public RestClient(int connectTimeout, int readTimeout) {
+        this.connectTimeout = connectTimeout;
+        this.readTimeout = readTimeout;
+        this.httpClient = HttpClients.createDefault();
+    }
+
+    public String get(String url) {
+        try {
+            HttpGet request = new HttpGet(url);
+            request.setConfig(RequestConfig.custom()
+                    .setConnectTimeout(connectTimeout)
+                    .setSocketTimeout(readTimeout)
+                    .build());
+
+            HttpResponse response = httpClient.execute(request);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                return EntityUtils.toString(entity);
+            } else {
+                System.out.println("Falha na requisição. Resposta vazia.");
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao realizar a requisição: " + e.getMessage());
+        }
+
+        return null;
+    }
+}
